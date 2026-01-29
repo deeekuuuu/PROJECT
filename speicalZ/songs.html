@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>Songs</title>
+
+<style>
+*{ box-sizing:border-box; }
+
+body{
+  margin:0;
+  font-family:"Poppins",sans-serif;
+  background:#121212;
+  color:#fff;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  transition:background .3s,color .3s;
+}
+
+body.light{
+  background:#fff;
+  color:#111;
+}
+
+/* App */
+.app{
+  width:100%;
+  max-width:420px;
+  min-height:100vh;
+  background:#181818;
+  display:flex;
+  flex-direction:column;
+}
+
+body.light .app{ background:#fff; }
+
+/* Top Nav */
+.header{
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:#181818;
+  border-bottom:1px solid #2a2a2a;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+
+body.light .header{
+  background:#fff;
+  border-bottom:1px solid #eee;
+}
+
+.nav-left,
+.nav-right{
+  display:flex;
+  gap:10px;
+}
+
+.nav-btn{
+  background:none;
+  border:none;
+  color:#1db954;
+  font-size:14px;
+  cursor:pointer;
+  font-weight:500;
+}
+
+.title{
+  font-size:18px;
+  font-weight:600;
+}
+
+/* List */
+.list{
+  flex:1;
+  padding:16px 16px 30px;
+}
+
+/* Story Line */
+.story-line{
+  background:#1f1f1f;
+  border-left:4px solid #1db954;
+  border-radius:10px;
+  padding:12px;
+  margin-bottom:12px;
+  font-size:14px;
+  font-style:italic;
+  color:#ccc;
+  opacity:0;
+  transform:translateY(10px);
+  transition:.4s;
+}
+
+.story-line.show{
+  opacity:1;
+  transform:translateY(0);
+}
+
+body.light .story-line{
+  background:#f7f7f7;
+  color:#333;
+}
+
+/* Song Card */
+.song-card{
+  display:flex;
+  gap:12px;
+  background:#202020;
+  border-radius:14px;
+  padding:12px;
+  margin-bottom:16px;
+  cursor:pointer;
+  opacity:0;
+  transform:translateY(10px);
+  transition:.4s;
+}
+
+body.light .song-card{
+  background:#fafafa;
+}
+
+.cover{
+  width:46px;
+  height:46px;
+  border-radius:10px;
+  background:linear-gradient(135deg,#1db954,#1ed760);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#000;
+  font-weight:bold;
+}
+
+.song-info{
+  flex:1;
+  overflow:hidden;
+}
+
+.song-title{
+  font-size:14px;
+  font-weight:600;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.song-artist{
+  font-size:12px;
+  opacity:.6;
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+<!-- Top Navigation -->
+<div class="header">
+
+  <div class="nav-left">
+    <button class="nav-btn" onclick="goHome()">← Home</button>
+  </div>
+
+  <div class="title">Songs</div>
+
+  <div class="nav-right">
+    <button class="nav-btn" onclick="goLines()">Lines</button>
+    <button class="nav-btn" onclick="goEnscribe()">Enscribe →</button>
+  </div>
+
+</div>
+
+<!-- Songs -->
+<div class="list" id="songList"></div>
+
+</div>
+
+<script>
+
+/* Playlist */
+const playlist = [
+
+  {
+    // line: "For every thought of you…",
+    song:{
+      // title:"Tum Hi Ho",
+      // artist:"Arijit Singh",
+      url:"https://open.spotify.com/track/1xofPJhZcfJCc66P1UAh28?si=9c59ac6fe22d4bb6"
+    }
+  },
+
+  {
+    // line: "When I miss you at night…",
+    song:{
+      // title:"Raabta",
+      // artist:"Arijit Singh",
+      url:"https://open.spotify.com/track/08kTa3SL9sV6Iy8KLKtGql?si=6e6cd35be69d4b9c"
+    }
+  },
+
+  {
+    // line: "You are always in my heart…",
+    song:{
+      // title:"Hawayein",
+      // artist:"Arijit Singh",
+      url:"https://open.spotify.com/track/3gixnmepHSsyAuho34rprN?si=10977642564847f5"
+    }
+  }
+
+];
+
+const list = document.getElementById("songList");
+
+/* Render */
+function render(){
+
+  list.innerHTML="";
+
+  playlist.forEach((item,i)=>{
+
+    const line=document.createElement("div");
+    line.className="story-line";
+    line.textContent=item.line;
+    list.appendChild(line);
+
+    const card=document.createElement("div");
+    card.className="song-card";
+
+    card.innerHTML=`
+      <div class="cover">▶</div>
+
+      <div class="song-info">
+        <div class="song-title">${item.song.title}</div>
+        <div class="song-artist">${item.song.artist}</div>
+      </div>
+    `;
+
+    card.onclick=()=>openSpotify(item.song.url);
+
+    list.appendChild(card);
+
+    setTimeout(()=>line.classList.add("show"),i*300);
+
+    setTimeout(()=>{
+      card.style.opacity=1;
+      card.style.transform="translateY(0)";
+    },i*300+150);
+
+  });
+
+}
+
+/* Spotify */
+function openSpotify(url){
+
+  const appUrl=url.replace(
+    "https://open.spotify.com/",
+    "spotify://"
+  );
+
+  window.location.href=appUrl;
+
+  setTimeout(()=>{
+    window.open(url,"_blank");
+  },700);
+}
+
+/* Navigation */
+function goHome(){
+  window.location.href="index.html";
+}
+
+function goLines(){
+  window.location.href="index.html#lines";
+}
+
+function goEnscribe(){
+  window.location.href="quotes.html";
+}
+
+render();
+
+</script>
+
+</body>
+</html>
