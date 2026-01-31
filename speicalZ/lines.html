@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lines</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:"Poppins",sans-serif;
+  background:linear-gradient(135deg, #fff4e6 0%, #ffe4cc 100%);
+  color:#5a3e2b;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+}
+
+.app{
+  width:100%;
+  max-width:420px;
+  min-height:100vh;
+  background:rgba(255,255,255,0.7);
+  backdrop-filter:blur(10px);
+  display:flex;
+  flex-direction:column;
+}
+
+/* Top Nav Bar */
+.header{
+  padding:12px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  background:rgba(255,255,255,0.9);
+  border-bottom:1px solid #f4d5b0;
+}
+
+.nav-left,
+.nav-right{
+  display:flex;
+  gap:10px;
+}
+
+.nav-btn{
+  background:none;
+  border:none;
+  color:#d2691e;
+  font-size:14px;
+  cursor:pointer;
+  font-weight:500;
+  transition:color 0.3s ease;
+}
+
+.nav-btn:hover{
+  color:#8b4513;
+}
+
+.title{
+  font-size:18px;
+  font-weight:600;
+  color:#8b4513;
+}
+
+.container{
+  padding:0;
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+
+/* Single Line Card - Full Page */
+.single-line-card{
+  width:90%;
+  max-width:380px;
+  background:linear-gradient(135deg, #fff9f0 0%, #ffefd5 100%);
+  border-radius:30px;
+  padding:50px 30px;
+  box-shadow:0 15px 40px rgba(210,105,30,0.2);
+  border:2px solid rgba(244,213,176,0.6);
+  position:relative;
+  text-align:center;
+  animation:fadeIn 0.5s ease;
+  transition:transform 0.3s ease;
+  min-height:400px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  touch-action:pan-y;
+}
+
+.line-number{
+  position:absolute;
+  top:20px;
+  right:25px;
+  font-size:12px;
+  color:#a0826d;
+  font-weight:500;
+}
+
+.heart-decoration{
+  font-size:50px;
+  margin-bottom:30px;
+  animation:heartbeat 1.5s ease-in-out infinite;
+}
+
+@keyframes heartbeat{
+  0%, 100%{transform:scale(1)}
+  25%{transform:scale(1.1)}
+  50%{transform:scale(1)}
+}
+
+.line-text{
+  font-size:22px;
+  line-height:1.6;
+  color:#5a3e2b;
+  font-style:italic;
+  margin-bottom:25px;
+  font-weight:400;
+  position:relative;
+}
+
+.line-author{
+  font-size:16px;
+  color:#d2691e;
+  font-weight:600;
+  margin-bottom:40px;
+}
+
+.navigation-dots{
+  display:flex;
+  gap:8px;
+  justify-content:center;
+  margin-bottom:15px;
+}
+
+.dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#d2b48c;
+  cursor:pointer;
+  transition:all 0.3s ease;
+}
+
+.dot.active{
+  background:#d2691e;
+  width:24px;
+  border-radius:4px;
+}
+
+.swipe-hint{
+  font-size:11px;
+  color:#a0826d;
+  opacity:0.7;
+}
+
+@keyframes slideOutLeft{
+  to{
+    transform:translateX(-100%);
+    opacity:0;
+  }
+}
+
+@keyframes slideOutRight{
+  to{
+    transform:translateX(100%);
+    opacity:0;
+  }
+}
+
+@keyframes fadeIn{
+  from{opacity:0; transform:scale(0.9)}
+  to{opacity:1; transform:scale(1)}
+}
+
+/* Floating decorations */
+.decoration{
+  position:fixed;
+  pointer-events:none;
+  opacity:0.2;
+  font-size:40px;
+}
+
+.decoration:nth-child(1){
+  top:10%;
+  left:5%;
+  animation:float 6s ease-in-out infinite;
+}
+
+.decoration:nth-child(2){
+  top:30%;
+  right:8%;
+  animation:float 8s ease-in-out infinite 1s;
+}
+
+.decoration:nth-child(3){
+  bottom:20%;
+  left:10%;
+  animation:float 7s ease-in-out infinite 2s;
+}
+
+@keyframes float{
+  0%, 100%{transform:translateY(0px) rotate(0deg)}
+  50%{transform:translateY(-20px) rotate(5deg)}
+}
+
+/* Empty state */
+.empty-state{
+  text-align:center;
+  padding:60px 20px;
+  color:#a0826d;
+  animation:fadeIn 1s ease;
+}
+
+.empty-state-icon{
+  font-size:60px;
+  margin-bottom:20px;
+  animation:bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce{
+  0%, 100%{transform:translateY(0)}
+  50%{transform:translateY(-10px)}
+}
+
+</style>
+</head>
+<body>
+
+<!-- Floating decorations -->
+<div class="decoration">✨</div>
+<div class="decoration">💫</div>
+<div class="decoration">🌟</div>
+
+<div class="app">
+
+  <!-- Top Navigation Bar -->
+  <div class="header">
+    <div class="nav-left">
+      <button class="nav-btn" onclick="goHome()">← Home</button>
+    </div>
+
+    <div class="title">Lines</div>
+
+    <div class="nav-right">
+      <button class="nav-btn" onclick="goEnscribe()">Enscribe</button>
+      <button class="nav-btn" onclick="goFlowers()">Flowers</button>
+      <button class="nav-btn" onclick="goSongs()">Songs →</button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="container" id="linesContainer"></div>
+
+</div>
+
+<script>
+/* ===============================
+   ADD YOUR LINES FOR YOUR GF HERE
+   =============================== */
+
+const lines = [
+  {
+    text: "helloo my cutu putu bacha swip to see more",
+        author: ""
+  },
+  {
+    text: "sooo khana khaya ?  just kiding kuch samj nai aay kya likhu to puch liaaa",
+        author: ""
+  },
+
+  {
+    text: "hi my lovieee doivveee gungun jiiiii kesa gya apka din",
+        author: ""
+  },
+  {
+    text: "kya apka din mere se bina batein kare nikal jaata he aaj kal ( gande bante jare yarr so bad)",
+        author: ""
+  },
+  {
+    text: "ahhh miss you sooo muuch muuuhhhhhchhhhh much ",
+        author: ""
+  },
+  {
+    text: "lobhheeee youuu sooo much and ever (not forever for now dont ask why )",
+        author: ""
+  },
+  {
+    text: "and last bee happy forever muahhhhhh ",
+  },
+// 
+];
+
+let currentIndex = 0;
+const container = document.getElementById("linesContainer");
+let startX = 0;
+let isDragging = false;
+
+function renderCurrentLine(){
+  if(lines.length === 0){
+    container.innerHTML = `
+      <div class="empty-state">
+        
+       
+      </div>
+    `;
+    return;
+  }
+
+  const line = lines[currentIndex];
+  
+  container.innerHTML = `
+    <div class="single-line-card">
+      <div class="line-number">${currentIndex + 1} / ${lines.length}</div>
+      <div class="heart-decoration"></div>
+      <div class="line-text">"${line.text}"</div>
+      <div class="line-author">${line.author}</div>
+      <div class="navigation-dots">
+        ${lines.map((_, i) => `<span class="dot ${i === currentIndex ? 'active' : ''}" onclick="goToLine(${i})"></span>`).join('')}
+      </div>
+      <div class="swipe-hint">← Swipe to navigate →</div>
+    </div>
+  `;
+
+  // Add touch events
+  const card = container.querySelector('.single-line-card');
+  card.addEventListener('touchstart', handleTouchStart);
+  card.addEventListener('touchmove', handleTouchMove);
+  card.addEventListener('touchend', handleTouchEnd);
+}
+
+function handleTouchStart(e){
+  startX = e.touches[0].clientX;
+  isDragging = true;
+}
+
+function handleTouchMove(e){
+  if(!isDragging) return;
+  const currentX = e.touches[0].clientX;
+  const diff = startX - currentX;
+  
+  const card = e.currentTarget;
+  card.style.transform = `translateX(${-diff}px)`;
+}
+
+function handleTouchEnd(e){
+  if(!isDragging) return;
+  isDragging = false;
+  
+  const endX = e.changedTouches[0].clientX;
+  const diff = startX - endX;
+  
+  const card = e.currentTarget;
+  card.style.transform = '';
+  
+  if(Math.abs(diff) > 50){
+    if(diff > 0){
+      nextLine();
+    } else {
+      prevLine();
+    }
+  }
+}
+
+function nextLine(){
+  if(currentIndex < lines.length - 1){
+    currentIndex++;
+    animateTransition('left');
+  }
+}
+
+function prevLine(){
+  if(currentIndex > 0){
+    currentIndex--;
+    animateTransition('right');
+  }
+}
+
+function goToLine(index){
+  currentIndex = index;
+  renderCurrentLine();
+}
+
+function animateTransition(direction){
+  const card = container.querySelector('.single-line-card');
+  if(card){
+    card.style.animation = direction === 'left' ? 'slideOutLeft 0.3s ease' : 'slideOutRight 0.3s ease';
+    setTimeout(() => {
+      renderCurrentLine();
+    }, 300);
+  } else {
+    renderCurrentLine();
+  }
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', (e) => {
+  if(e.key === 'ArrowLeft') prevLine();
+  if(e.key === 'ArrowRight') nextLine();
+});
+
+/* Navigation */
+function goHome(){
+  window.location.href = "index.html";
+}
+
+function goEnscribe(){
+  window.location.href = "quotes.html";
+}
+
+function goSongs(){
+  window.location.href = "songs.html";
+}
+
+function goLines(){
+  window.location.href = "lines.html";
+}
+
+function goFlowers(){
+  window.location.href = "flower.html";
+}
+
+
+
+renderCurrentLine();
+</script>
+
+</body>
+</html>
