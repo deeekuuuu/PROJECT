@@ -11,8 +11,8 @@
 body{
   margin:0;
   font-family:"Poppins",sans-serif;
-  background:#121212;
-  color:#fff;
+  background:#f5f5f5;
+  color:#333;
   min-height:100vh;
   display:flex;
   justify-content:center;
@@ -22,7 +22,7 @@ body{
   width:100%;
   max-width:420px;
   min-height:100vh;
-  background:#181818;
+  background:#ffffff;
   display:flex;
   flex-direction:column;
 }
@@ -33,8 +33,8 @@ body{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  background:#181818;
-  border-bottom:1px solid #2a2a2a;
+  background:#ffffff;
+  border-bottom:1px solid #e0e0e0;
 }
 
 .nav-left,
@@ -46,7 +46,7 @@ body{
 .nav-btn{
   background:none;
   border:none;
-  color:#1db954;
+  color:#333;
   font-size:14px;
   cursor:pointer;
   font-weight:500;
@@ -62,14 +62,32 @@ body{
   flex:1;
 }
 
+/* Text Description */
+.card-text{
+  font-size:15px;
+  line-height:1.5;
+  color:#555;
+  margin-bottom:12px;
+  padding:0 4px;
+  animation:fadeUp .6s ease forwards;
+  opacity:0;
+}
+
 /* Canva Image Card */
 .image-card{
-  background:#222;
+  background:#ffffff;
   border-radius:18px;
   margin-bottom:22px;
   overflow:hidden;
-  box-shadow:0 6px 18px rgba(0,0,0,0.35);
+  box-shadow:0 4px 12px rgba(0,0,0,0.1);
   animation:fadeUp .6s ease forwards;
+  cursor:pointer;
+  transition:transform 0.2s ease;
+  opacity:0;
+}
+
+.image-card:active{
+  transform:scale(0.98);
 }
 
 .image-card img{
@@ -78,9 +96,51 @@ body{
   display:block;
 }
 
-/* Zoom on tap */
-.image-card:active img{
-  transform:scale(1.02);
+/* Fullscreen Modal */
+.fullscreen-modal{
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  background:rgba(0,0,0,0.95);
+  z-index:9999;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+  animation:fadeIn 0.3s ease;
+}
+
+.fullscreen-image{
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+  border-radius:8px;
+}
+
+.close-btn{
+  position:absolute;
+  top:20px;
+  right:20px;
+  background:#fff;
+  border:none;
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  font-size:24px;
+  color:#333;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 4px 12px rgba(0,0,0,0.3);
+  z-index:10000;
+}
+
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
 }
 
 @keyframes fadeUp{
@@ -114,7 +174,9 @@ body.light .image-card{background:#f7f7f7}
 
     <div class="nav-right">
       <button class="nav-btn" onclick="goLines()">Lines</button>
+      <button class="nav-btn" onclick="goFlowers()">Flowers</button>
       <button class="nav-btn" onclick="goSongs()">Songs →</button>
+
     </div>
   </div>
 
@@ -129,10 +191,19 @@ body.light .image-card{background:#f7f7f7}
    =============================== */
 
 const canvaQuotes = [
-  "images/1.png",
-  "images/1.png",
-  "images/1.png",
-  "images/1.png"
+  {
+    image: "images/code.png",
+    text: "As a CS student i would like you say that your like ...."
+  },
+  {
+    image: "images/cricket.png",
+    text: "as a virat kohli fan i would like to say that your my anuskha sharma and as a refrence to this i would also like to say  that  ...."
+  },
+  {
+    image: "images/marvel.png",
+    text: "As a marvel Enthusiastic i would like to say that your my "
+  },
+  
 ];
 
 const list = document.getElementById("quoteList");
@@ -140,20 +211,54 @@ const list = document.getElementById("quoteList");
 function renderQuotes(){
   list.innerHTML = "";
 
-  canvaQuotes.forEach((src,i)=>{
+  canvaQuotes.forEach((item,i)=>{
+    // Text description
+    const textDiv = document.createElement("div");
+    textDiv.className = "card-text";
+    textDiv.textContent = item.text;
+    textDiv.style.animationDelay = i * 0.15 + "s";
+    list.appendChild(textDiv);
+
+    // Image card
     const card = document.createElement("div");
     card.className = "image-card";
-
-    card.style.animationDelay = i * 0.15 + "s";
+    card.style.animationDelay = (i * 0.15 + 0.1) + "s";
 
     const img = document.createElement("img");
-    img.src = src;
+    img.src = item.image;
     img.loading = "lazy";
     img.alt = "Card";
 
     card.appendChild(img);
+    
+    // Click to view fullscreen
+    card.onclick = () => openFullscreen(item.image);
+    
     list.appendChild(card);
   });
+}
+
+// Fullscreen modal
+function openFullscreen(imageSrc){
+  const modal = document.createElement("div");
+  modal.className = "fullscreen-modal";
+  
+  const img = document.createElement("img");
+  img.src = imageSrc;
+  img.className = "fullscreen-image";
+  
+  const closeBtn = document.createElement("button");
+  closeBtn.className = "close-btn";
+  closeBtn.innerHTML = "✕";
+  closeBtn.onclick = () => modal.remove();
+  
+  modal.appendChild(closeBtn);
+  modal.appendChild(img);
+  modal.onclick = (e) => {
+    if(e.target === modal) modal.remove();
+  };
+  
+  document.body.appendChild(modal);
 }
 
 /* Navigation */
@@ -164,11 +269,16 @@ function goHome(){
 function goSongs(){
   window.location.href = "songs.html";
 }
-
 function goLines(){
-  // Change this if your lines section is on another page
-  window.location.href = "index.html#lines";
+  window.location.href = "lines.html";
+}
+
+function goFlowers(){
+  window.location.href = "flower.html";
 }
 
 renderQuotes();
 </script>
+
+</body>
+</html>
