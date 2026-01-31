@@ -171,6 +171,7 @@ body.light .song-card{
 
   <div class="nav-right">
     <button class="nav-btn" onclick="goLines()">Lines</button>
+    <button class="nav-btn" onclick="goFlowers()">Flowers</button>
     <button class="nav-btn" onclick="goEnscribe()">Enscribe →</button>
   </div>
 
@@ -187,29 +188,29 @@ body.light .song-card{
 const playlist = [
 
   {
-    // line: "For every thought of you…",
+    line: "your just like this song im my imagination",
     song:{
-      // title:"Tum Hi Ho",
-      // artist:"Arijit Singh",
-      url:"https://open.spotify.com/track/1xofPJhZcfJCc66P1UAh28?si=9c59ac6fe22d4bb6"
+      title:"blue",
+       artist:"yung kai",
+      url:"https://open.spotify.com/track/3be9ACTxtcL6Zm4vJRUiPG?si=8f00929c0f394334"
     }
   },
 
   {
-    // line: "When I miss you at night…",
+    line: "the things i would do  get minneeee cutu here the ssong i would dedicate for that  ",
     song:{
-      // title:"Raabta",
-      // artist:"Arijit Singh",
-      url:"https://open.spotify.com/track/08kTa3SL9sV6Iy8KLKtGql?si=6e6cd35be69d4b9c"
+      title:"khat",
+      artist:"",
+      url:"https://open.spotify.com/track/3gixnmepHSsyAuho34rprN?si=3cfb07bfea0745da"
     }
   },
 
   {
-    // line: "You are always in my heart…",
+    line: "ahhh this for like like .. ,  tell me what to add here im adding from my side for now ",
     song:{
-      // title:"Hawayein",
-      // artist:"Arijit Singh",
-      url:"https://open.spotify.com/track/3gixnmepHSsyAuho34rprN?si=10977642564847f5"
+      title:"sitaare",
+      artist:"Arijit Singh",
+      url:"https://open.spotify.com/track/6WlARP6h4CDVOcY386wW0W?si=b9e843b260104870"
     }
   }
 
@@ -277,11 +278,14 @@ function goHome(){
 }
 
 function goLines(){
-  window.location.href="index.html#lines";
+  window.location.href="lines.html";
 }
 
 function goEnscribe(){
   window.location.href="quotes.html";
+}
+function goFlowers(){
+  window.location.href="flower.html";
 }
 
 render();
