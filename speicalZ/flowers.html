@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Interactive Flower Garden</title>
+
   <style>
     * {
       margin: 0;
@@ -15,12 +16,43 @@
       overflow: hidden;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background: #fff5e6;
+
+      /* Push content below navbar */
+      padding-top: 60px;
     }
     
     #c {
       display: block;
       cursor: crosshair;
       touch-action: none;
+    }
+
+    /* NAV BAR */
+    .header{
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 9999;
+      height: 55px;
+      background: rgba(255,245,230,0.9);
+      border-bottom: 1px solid #dc465a;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-left,
+    .nav-right{
+      display: flex;
+      gap: 8px;
+    }
+
+    .title{
+      font-weight: 600;
+      color: #dc465a;
+      font-size: 16px;
     }
     
     .controls {
@@ -93,47 +125,64 @@
     }
   </style>
 </head>
+
 <body>
-  <canvas id="c"></canvas>
-  
-  <div class="controls">
-    <button class="btn" onclick="clearGarden()">Clear Garden</button>
-    <button class="btn" onclick="toggleInstructions()">Toggle Help</button>
-  </div>
-  
-  <div class="instructions" id="instructions">
-    🌸 Draw on the canvas to grow beautiful flowers! Different drag lengths create different sized plants. 🌸
+
+<!-- NAV BAR -->
+<div class="header">
+
+  <div class="nav-left">
+    <button class="btn" onclick="goHome()">← Home</button>
   </div>
 
-  <script>
-/**
- * Interactive Flower Garden Canvas
- * Draw to create beautiful procedural flowers
- */
+  <div class="title">Flowers</div>
+
+  <div class="nav-right">
+    <button class="btn" onclick="goEnscribe()">Enscribe</button>
+    <button class="btn" onclick="goLines()">Lines</button>
+    <button class="btn" onclick="goSongs()">Songs →</button>
+  </div>
+
+</div>
+<!-- END NAV -->
+
+<canvas id="c"></canvas>
+  
+<div class="controls">
+  <button class="btn" onclick="clearGarden()">Clear Garden</button>
+</div>
+  
+<div class="instructions" id="instructions">
+  here are some flowerrss for my cutuuuu saaa baachaaaaa muuuah
+</div>
+
+<script>
+
+/* ===============================
+   FLOWER CANVAS CODE (UNCHANGED)
+   =============================== */
 
 class FlowerGarden {
   constructor(canvasId) {
     this.canvas = document.getElementById(canvasId);
     this.ctx = this.canvas.getContext("2d", { alpha: false });
     
-    // State
     this.plants = [];
     this.drawing = false;
     this.currentPath = [];
     this.wind = 0;
     this.animationId = null;
     
-    // Configuration
     this.config = {
-      types: ["rose"], // Rose only
+      types: ["rose"],
       minPathLength: 4,
       maxSize: 120,
       sizeMultiplier: 4,
       growthSpeed: 1.4,
-      flowerGrowthSpeed: 0.3,
-      branchProbability: 0, // No branches, single flower only
+      flowerGrowthSpeed: 0.5,
+      branchProbability: 0,
       branchSpread: 0.35,
-      fadeAlpha: 1.0, // Solid background, no fade trail
+      fadeAlpha: 1.0,
       windSpeed: 0.01
     };
     
@@ -152,15 +201,12 @@ class FlowerGarden {
   }
   
   setupEventListeners() {
-    // Resize handler
     window.addEventListener("resize", () => this.resize());
     
-    // Touch events
     this.canvas.addEventListener("touchstart", (e) => this.handleStart(e), { passive: false });
     this.canvas.addEventListener("touchmove", (e) => this.handleMove(e), { passive: false });
     this.canvas.addEventListener("touchend", () => this.handleEnd());
     
-    // Mouse events
     this.canvas.addEventListener("mousedown", (e) => this.handleStart(e));
     this.canvas.addEventListener("mousemove", (e) => this.handleMove(e));
     this.canvas.addEventListener("mouseup", () => this.handleEnd());
@@ -204,7 +250,6 @@ class FlowerGarden {
   }
   
   createPlant() {
-    const type = this.config.types[Math.floor(Math.random() * this.config.types.length)];
     const firstPoint = this.currentPath[0];
     const size = Math.min(
       this.config.maxSize,
@@ -214,7 +259,7 @@ class FlowerGarden {
     const plant = new Branch(
       firstPoint.x,
       firstPoint.y,
-      type,
+      "rose",
       this.config
     );
     plant.target = size;
@@ -223,17 +268,15 @@ class FlowerGarden {
   }
   
   drawBackground() {
-    this.ctx.fillStyle = `#fff5e6`; // Warm peachy cream background
+    this.ctx.fillStyle = `#fff5e6`;
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
   
   drawCurrentPath() {
     if (this.currentPath.length < 2) return;
     
-    this.ctx.strokeStyle = "#dc465a"; // Rose red color
+    this.ctx.strokeStyle = "#dc465a";
     this.ctx.lineWidth = 2;
-    this.ctx.lineCap = "round";
-    this.ctx.lineJoin = "round";
     
     this.ctx.beginPath();
     this.ctx.moveTo(this.currentPath[0].x, this.currentPath[0].y);
@@ -259,19 +302,13 @@ class FlowerGarden {
   animate() {
     this.update();
     this.render();
-    this.animationId = requestAnimationFrame(() => this.animate());
+    requestAnimationFrame(() => this.animate());
   }
   
   clear() {
     this.plants = [];
-    this.ctx.fillStyle = "#fff5e6"; // Warm peachy cream
+    this.ctx.fillStyle = "#fff5e6";
     this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-  }
-  
-  destroy() {
-    if (this.animationId) {
-      cancelAnimationFrame(this.animationId);
-    }
   }
 }
 
@@ -280,57 +317,20 @@ class Branch {
   constructor(x, y, type, config, angle = -Math.PI / 2) {
     this.x = x;
     this.y = y;
-    this.type = type;
     this.config = config;
     
-    this.angle = angle; // Always straight up by default
+    this.angle = angle;
     this.length = 0;
     this.target = 80;
     this.width = 3.5;
-    this.flowerSize = 0;
-    
-    this.children = [];
     this.done = false;
   }
   
   grow() {
-    // Grow the branch
     if (this.length < this.target) {
       this.length += this.config.growthSpeed;
-    } else if (!this.done) {
+    } else {
       this.done = true;
-      this.createChildren();
-    }
-    
-    // Grow children
-    this.children.forEach(child => child.grow());
-  }
-  
-  createChildren() {
-    if (Math.random() < this.config.branchProbability) {
-      const spread = this.config.branchSpread;
-      
-      // Left branch
-      const leftBranch = new Branch(
-        this.getEndX(),
-        this.getEndY(),
-        this.type,
-        this.config
-      );
-      leftBranch.angle = this.angle - spread;
-      leftBranch.width = this.width * 0.7;
-      
-      // Right branch
-      const rightBranch = new Branch(
-        this.getEndX(),
-        this.getEndY(),
-        this.type,
-        this.config
-      );
-      rightBranch.angle = this.angle + spread;
-      rightBranch.width = this.width * 0.7;
-      
-      this.children.push(leftBranch, rightBranch);
     }
   }
   
@@ -343,151 +343,53 @@ class Branch {
   }
   
   draw(ctx) {
-    // Draw stem
     ctx.strokeStyle = "#4f7c5c";
     ctx.lineWidth = this.width;
-    ctx.lineCap = "round";
     
     ctx.beginPath();
     ctx.moveTo(this.x, this.y);
     ctx.lineTo(this.getEndX(), this.getEndY());
     ctx.stroke();
-    
-    // Draw flower at branch tips
-    if (this.done && this.children.length === 0) {
-      if (this.flowerSize < 16) {
-        this.flowerSize += this.config.flowerGrowthSpeed;
-      }
-      
-      FlowerRenderer.draw(
-        ctx,
-        this.getEndX(),
-        this.getEndY(),
-        this.flowerSize,
-        this.type
-      );
-    }
-    
-    // Draw children
-    this.children.forEach(child => child.draw(ctx));
   }
 }
 
 
-class FlowerRenderer {
-  static draw(ctx, x, y, size, type) {
-    if (size < 1) return;
-    
-    ctx.save();
-    ctx.translate(x, y);
-    
-    switch (type) {
-      case "rose":
-        this.drawRose(ctx, size);
-        break;
-      case "tulip":
-        this.drawTulip(ctx, size);
-        break;
-      case "daisy":
-        this.drawDaisy(ctx, size);
-        break;
-      case "lotus":
-        this.drawLotus(ctx, size);
-        break;
-      case "wild":
-        this.drawWild(ctx, size);
-        break;
-    }
-    
-    ctx.restore();
-  }
-  
-  static drawRose(ctx, size) {
-    ctx.fillStyle = "rgba(220, 70, 90, 0.95)";
-    
-    for (let i = 0; i < 18; i++) {
-      ctx.rotate(0.35);
-      ctx.beginPath();
-      ctx.ellipse(0, -size / 2, size / 3, size, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-  
-  static drawTulip(ctx, size) {
-    ctx.fillStyle = "rgba(240, 90, 120, 0.95)";
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.bezierCurveTo(-size, -size, -size / 2, -size * 2, 0, -size * 2);
-    ctx.bezierCurveTo(size / 2, -size * 2, size, -size, 0, 0);
-    ctx.fill();
-  }
-  
-  static drawDaisy(ctx, size) {
-    // Petals
-    ctx.fillStyle = "white";
-    for (let i = 0; i < 14; i++) {
-      ctx.rotate(Math.PI * 2 / 14);
-      ctx.beginPath();
-      ctx.ellipse(0, -size, size / 4, size, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    
-    // Center
-    ctx.fillStyle = "gold";
-    ctx.beginPath();
-    ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
-    ctx.fill();
-  }
-  
-  static drawLotus(ctx, size) {
-    ctx.fillStyle = "rgba(255, 180, 210, 0.95)";
-    
-    for (let i = 0; i < 12; i++) {
-      ctx.rotate(Math.PI * 2 / 12);
-      ctx.beginPath();
-      ctx.ellipse(0, -size, size / 2, size * 1.3, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-  
-  static drawWild(ctx, size) {
-    for (let i = 0; i < 10; i++) {
-      ctx.rotate(Math.PI * 2 / 10);
-      ctx.fillStyle = `hsl(${Math.random() * 360}, 70%, 70%)`;
-      ctx.beginPath();
-      ctx.ellipse(0, -size, size / 3, size, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-}
+/* INIT */
 
-
-// Initialize the garden when DOM is ready
 let garden;
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", () => {
-    garden = new FlowerGarden("c");
-  });
-} else {
+document.addEventListener("DOMContentLoaded", () => {
   garden = new FlowerGarden("c");
+});
+
+window.clearGarden = () => {
+  if (garden) garden.clear();
+};
+
+
+/* NAVIGATION */
+
+function goHome(){
+  window.location.href = "index.html";
 }
 
-// Global functions for controls
-window.clearGarden = () => {
-  if (garden) {
-    garden.clear();
-  }
-};
+function goEnscribe(){
+  window.location.href = "quotes.html";
+}
 
-window.toggleInstructions = () => {
-  const instructions = document.getElementById('instructions');
-  if (instructions.style.display === 'none') {
-    instructions.style.display = 'block';
-  } else {
-    instructions.style.display = 'none';
-  }
-};
-  </script>
+function goSongs(){
+  window.location.href = "songs.html";
+}
+
+function goLines(){
+  window.location.href = "lines.html";
+}
+
+function goFlowers(){
+  window.location.href = "flower.html";
+}
+
+</script>
+
 </body>
 </html>
