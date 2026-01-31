@@ -29,15 +29,20 @@ body {
   padding: 0 16px env(safe-area-inset-bottom);
   position: relative;
 
-  /* Stable + Scrollable Area */
   min-height: 130px;
   max-height: 45vh;
-  overflow-y: hidden;
+
+  /* ENABLE SCROLL */
+  overflow-y: auto;
+  overflow-x: hidden;
 
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
+
+  -webkit-overflow-scrolling: touch;
 }
+
 
 .message {
   font-size: clamp(20px, 5.5vw, 28px);
@@ -46,7 +51,6 @@ body {
   letter-spacing: 0.3px;
   padding: 0 12px;
 
-  /* Reserve Space */
   min-height: 2.6em;
 
   will-change: opacity, transform;
@@ -149,6 +153,69 @@ body {
   60% { left: 120%; }
   100% { left: 120%; }
 }
+
+/* Continue Button (Bottom + Hollow Rectangle - Black + Shiny) */
+#continueBtn{
+  position:fixed;
+  bottom:24px;
+  left:50%;
+  transform:translateX(-50%) translateY(16px) scale(0.96);
+
+  padding:12px 34px;
+  border:2px solid #000000;
+  border-radius:8px;
+  background:transparent;
+  color:#000000;
+  font-size:16px;
+  font-weight:600;
+  cursor:pointer;
+
+  letter-spacing:0.5px;
+
+  box-shadow:0 0 0 rgba(0,0,0,0);
+  opacity:0;
+  overflow:hidden;
+
+  transition:all .7s cubic-bezier(0.25,0.8,0.25,1);
+}
+
+#continueBtn:hover{
+  background:rgba(0,0,0,0.06);
+}
+
+/* Shine layer */
+#continueBtn::after{
+  content:"";
+  position:absolute;
+  top:-50%;
+  left:-60%;
+  width:50%;
+  height:200%;
+  background:linear-gradient(
+    120deg,
+    transparent,
+    rgba(255,255,255,0.8),
+    transparent
+  );
+  transform:skewX(-20deg);
+  animation:btnShine 3s infinite;
+}
+
+@keyframes btnShine{
+  0%{left:-60%}
+  60%{left:120%}
+  100%{left:120%}
+}
+
+#continueBtn.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(0) scale(1);
+}
+
+#continueBtn{
+  transform:translateX(-50%) translateY(16px) scale(0.96);
+}
+
 </style>
 </head>
 
@@ -162,7 +229,7 @@ body {
 </div>
 
 <!-- Continue Button -->
-<button id="continueBtn" style="display:none;margin-top:20px;padding:12px 24px;border:none;border-radius:20px;background:#000;color:#fff;font-size:15px;cursor:pointer;">Next</button>
+<button id="continueBtn" style="display:none;">Next</button>
 
 <!-- Name Popup -->
 <div id="nameOverlay">
@@ -176,10 +243,8 @@ body {
 <script>
 
 const messages = [
-  "Welcome to my space.",
-  "No boxes. No frames.",
-  "Just words, floating freely.",
-  "One thought at a time."
+  " start karne ke bad wapis home pe tap mt karna option de rakhe he mene vha pe tap karna "," And  sorry sory sorry thora sa late hogya kyu ki kuch try kar rha tha  to upload karne me late hogya hu aur"
+  ," pura nia banaya hua jaldi jaldi me jesa bana bana diya ek bar aurr aage banauga esko ya nai pata nai and skip ka option he to skip kar dena agar mnnn kare to baki padh lena :) aur if you like it let me know about that  aur baki kya bol rha tah me nvm leave about that call pe bata duga agar ho paay to baki aur dekh lo kesa bana he bata dena na chale  to kar duga shai ek bar aur ye pura nai he aur na me banana chata ab pura ese :) "  
 ];
 
 const target = document.getElementById("message");
@@ -190,7 +255,7 @@ const continueBtn = document.getElementById("continueBtn");
 let index = 0;
 let skipped = false;
 let currentTimeout = null;
-let afterName = false; // switch behavior after name is entered
+let afterName = false;
 
 /* Swipe Skip */
 let touchStartX = 0;
@@ -204,25 +269,19 @@ wrapper.addEventListener("touchend", e => {
   if (Math.abs(dx) > 80) skipIntro();
 });
 
-/* Animate Text (Typewriter + Skip Support) */
+/* Animate Text */
 function animateText(text, onDone){
 
   if(skipped) return;
 
   clearTimeout(currentTimeout);
 
-  target.style.opacity = 1;
-  target.style.transform = "none";
-  target.style.transition = "none";
-
-  // Before name: keep previous text
-// After name: start fresh for each message
-if(afterName){
-  target.textContent = "";
-}
+  if(afterName){
+    target.textContent = "";
+  }
 
   let i = 0;
-  const speed = 40; // typing speed
+  const speed = 55; // smoother typing
 
   function type(){
 
@@ -236,10 +295,9 @@ if(afterName){
       target.textContent += text.charAt(i);
       i++;
 
-      // Auto scroll when long
-      target.parentElement.scrollTop = target.parentElement.scrollHeight;
-
-      currentTimeout = setTimeout(type, speed);
+      currentTimeout = setTimeout(()=>{
+        requestAnimationFrame(type);
+      }, speed);
     }
     else{
       currentTimeout = setTimeout(()=>{
@@ -280,11 +338,23 @@ function skipIntro(){
   showNamePopup();
 }
 
+/* Continue */
 function showContinueBtn(){
+
   continueBtn.style.display = "inline-block";
+
+  setTimeout(()=>{
+    continueBtn.classList.add("show");
+  },100);
+
   continueBtn.onclick = ()=>{
-    continueBtn.style.display = "none";
-    showNamePopup();
+
+    continueBtn.classList.remove("show");
+
+    setTimeout(()=>{
+      continueBtn.style.display = "none";
+      showNamePopup();
+    },300);
   };
 }
 
@@ -295,12 +365,8 @@ function showNamePopup(){
 
 function saveName(){
 
-  // Switch to after-name mode
   afterName = true;
-
-  // Clear old messages so new typing starts fresh
   target.textContent = "";
-
 
   const name = document.getElementById("nameInput").value.trim();
   if(!name) return;
@@ -313,8 +379,8 @@ function saveName(){
   clearTimeout(currentTimeout);
 
   const nameMessages = [
-    `Hi ${name}.`,
-    "I’m glad you’re here.",
+    `Hiiiiiiiii mineeee ${name}.`,
+    "Here is something special for mine bbg",
     "Let’s continue."
   ];
 
@@ -340,8 +406,6 @@ function saveName(){
 function showOptions(){
 
   target.innerHTML="";
-  target.style.opacity=1;
-  target.style.transform="none";
 
   const options = document.createElement("div");
 
@@ -352,24 +416,11 @@ function showOptions(){
 
   const pages = [
 
-    {
-      label:"Enscribe",
-      link:"quotes.html",
-      lines:[""]
-    },
-
-    {
-      label:"Songs",
-      link:"songs.html",
-      lines:[""]
-    },
-
-    {
-      label:"Lines",
-      link:"lines.html",
-      lines:[""]
-    }
-
+    { label:"Enscribe", link:"quotes.html", lines:["Short thoughts","Deep words","Moments"] },
+    { label:"Songs", link:"songs.html", lines:["Feel the rhythm","Let it play","Stay a while"] },
+    { label:"Lines", link:"lines.html", lines:["Simple lines","Soft feelings","True words"] },
+    { label:"Flower Garden", link:"flower.html", lines:["Grow your dreams","Bloom with joy","Nature's beauty"] },
+  
   ];
 
   pages.forEach((p,i)=>{
